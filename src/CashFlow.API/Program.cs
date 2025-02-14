@@ -14,7 +14,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddMvc(options => options.Filters.Add<ExceptionFilter>());
 
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
 var app = builder.Build();
