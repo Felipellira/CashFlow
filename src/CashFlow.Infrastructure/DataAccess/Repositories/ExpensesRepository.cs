@@ -20,6 +20,13 @@ internal class ExpensesRepository(CashFlowDbContext dbContext)
         return await _dbContext.Expenses.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
     }
 
+    public async Task<List<Expense>> GetByMonth(DateOnly month)
+    {
+        return await _dbContext.Expenses.AsNoTracking().Where(
+            e => e.Date.Month == month.Month && e.Date.Year == month.Year
+        ).OrderBy(expense => expense.Date).ToListAsync();
+    }
+
     async Task<Expense?> IUpdateOnlyExpensesRepository.GetById(long id)
     {
         return await _dbContext.Expenses.FirstOrDefaultAsync(e => e.Id == id);
