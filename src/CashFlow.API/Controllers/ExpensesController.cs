@@ -37,7 +37,7 @@ public class ExpensesController : ControllerBase
     }
 
     [HttpGet]
-    [Route("{id}")]
+    [Route("{id:long}")]
     [ProducesResponseType(typeof(ResponseExpenseJson), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(
@@ -51,7 +51,7 @@ public class ExpensesController : ControllerBase
     }
 
     [HttpDelete]
-    [Route("{id}")]
+    [Route("{id:long}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(
@@ -64,7 +64,7 @@ public class ExpensesController : ControllerBase
     }
 
     [HttpPut]
-    [Route("{id}")]
+    [Route("{id:long}")]
     [ProducesResponseType(typeof(ResponseRegisteredExpenseJson), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResponseErrorJson), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ResponseErrorJson), StatusCodes.Status404NotFound)]
