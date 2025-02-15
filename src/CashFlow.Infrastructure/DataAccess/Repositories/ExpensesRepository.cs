@@ -4,14 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CashFlow.Infrastructure.DataAccess.Repositories;
 
-internal class ExpensesRepository(CashFlowDbContext dbContext) : IExpensesRepository
+internal class ExpensesRepository(CashFlowDbContext dbContext)
+    : IReadOnlyExpensesRepository, IWriteOnlyExpensesRepository, IUpdateOnlyExpensesRepository
 {
     private readonly CashFlowDbContext _dbContext = dbContext;
-
-    public async Task Add(Expense expense)
-    {
-        await _dbContext.Expenses.AddAsync(expense);
-    }
 
     public async Task<List<Expense>> GetAll()
     {
@@ -19,8 +15,33 @@ internal class ExpensesRepository(CashFlowDbContext dbContext) : IExpensesReposi
         return expenses;
     }
 
-    public async Task<Expense?> GetById(long id)
+    async Task<Expense?> IReadOnlyExpensesRepository.GetById(long id)
     {
         return await _dbContext.Expenses.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
+    }
+
+    async Task<Expense?> IUpdateOnlyExpensesRepository.GetById(long id)
+    {
+        return await _dbContext.Expenses.FirstOrDefaultAsync(e => e.Id == id);
+    }
+
+
+    public void Update(Expense expense)
+    {
+        _dbContext.Expenses.Update(expense);
+    }
+
+    public async Task Add(Expense expense)
+    {
+        await _dbContext.Expenses.AddAsync(expense);
+    }
+
+    public async Task<bool> RemoveById(long id)
+    {
+        var foundExpense = await _dbContext.Expenses.FirstOrDefaultAsync(e => e.Id == id);
+        if (foundExpense is null) return false;
+
+        _dbContext.Expenses.Remove(foundExpense);
+        return true;
     }
 }

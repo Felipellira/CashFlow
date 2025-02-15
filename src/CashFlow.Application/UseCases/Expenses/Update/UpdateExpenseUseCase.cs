@@ -1,34 +1,37 @@
 ﻿using AutoMapper;
 using CashFlow.Communication.Requests;
-using CashFlow.Communication.Responses;
-using CashFlow.Domain.Entities;
 using CashFlow.Domain.Repositories.Expenses;
+using CashFlow.Exception;
 using CashFlow.Exception.ExceptionsBase;
 using CashFlow.Infrastructure.DataAccess.Repositories;
 
-namespace CashFlow.Application.UseCases.Expenses.Register;
+namespace CashFlow.Application.UseCases.Expenses.Update;
 
-public class RegisterExpenseUseCase(
-    IWriteOnlyExpensesRepository expensesRepository,
+public class UpdateExpenseUseCase(
+    IUpdateOnlyExpensesRepository expensesRepository,
     IUnitOfWork unitOfWork,
-    IMapper mapper)
-    : IRegisterExpenseUseCase
+    IMapper mapper
+) : IUpdateExpenseUseCase
 {
-    public async Task<ResponseRegisteredExpenseJson> Execute(RequestExpenseJson request)
+    public async Task Execute(long id, RequestExpenseJson request)
     {
         Validate(request);
 
-        var entity = mapper.Map<Expense>(request);
+        var expense = await expensesRepository.GetById(id);
 
-        await expensesRepository.Add(entity);
+        if (expense is null) throw new NotFoundException(ResourceErrorMessage.EXPENSE_NOT_FOUND);
+
+        mapper.Map(request, expense);
+
+        expensesRepository.Update(expense);
+
         await unitOfWork.Commit();
-
-        return mapper.Map<ResponseRegisteredExpenseJson>(entity);
     }
 
     private void Validate(RequestExpenseJson request)
     {
         var validator = new ExpenseValidator();
+
         var validationResult = validator.Validate(request);
 
         if (!validationResult.IsValid)
